@@ -2,7 +2,7 @@
 
 Terraform landing zone for the Glitch GCP organization: org policies, tags, folders, org IAM,
 logging, KMS / Autokey, budgets and the project factory. Workloads live in their own repos and
-consume hardened modules from [`glitch-modules`](https://github.com/LiquIDMeowz/glitch-modules).
+consume hardened modules from [`glitch-modules`](https://github.com/Vlad-Krastev/glitch-modules).
 
 Priorities, in order: **cost > security > availability**. Hard ceiling ≤ $10/month for everything;
 a traffic flood must degrade a service, never grow the bill.
