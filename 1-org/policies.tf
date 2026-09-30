@@ -175,14 +175,12 @@ resource "google_org_policy_policy" "run_ingress" {
   depends_on = [google_tags_tag_binding.public_ingress]
 }
 
-# Filestore Enterprise-tier-only constraint — requested by security to check whether Filestore
-# tier can be restricted via org policy. No managed constraint covers this, but the Instance
-# resource supports resource.tier as a custom constraint field. Custom constraints are always
-# defined at the org (required by the API); scoping enforcement to the DEV folder only, matching
-# how DEV/PROD/Shared are already used as the enforcement boundary elsewhere in this stage. Not
-# meant to stay enforced: Enterprise is the priciest tier (1 TiB minimum, well over the $10/month
-# budget), so leaving this on effectively bans Filestore folder-wide. Demo only — revert after
-# security reviews it.
+# Filestore Enterprise-tier-only constraint (ADR 046). Built to answer whether Filestore tier can
+# be restricted via org policy: no managed constraint covers it, but the Instance resource supports
+# resource.tier as a custom constraint field. Custom constraints are always defined at the org
+# (required by the API); enforcement is scoped to the DEV folder. Kept on as a reference example:
+# nothing here uses Filestore, and Enterprise's 1 TiB minimum is far over the $10/month budget, so
+# in practice it keeps Filestore out of DEV.
 resource "google_org_policy_custom_constraint" "filestore_enterprise_only" {
   name         = "custom.filestoreEnterpriseOnly"
   parent       = local.org
