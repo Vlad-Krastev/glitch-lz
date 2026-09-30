@@ -18,7 +18,7 @@ Mirrors the ClickUp "GlitchLZ — implementation" task (Vladimir space).
 | Delete old GlitchHub $5 budget | done | |
 | Operators + PAM (ADR 045) | done | Kalina: read-only + PAM (dev self, prod/org approved by Vlad); entitlements visible to her. Vlad unchanged |
 | Onboarding docs for operators (CONTRIBUTING / repo CLAUDE.md) | done | #14; app template + setup script come with the wiki |
-| Filestore Enterprise-only constraint demo (DEV folder) | pending | #16, enforced 2026-09-30 for security's review. Tested 2026-09-30: `BASIC_HDD` create in `glitch-ops-dev` denied (`CUSTOM_ORG_POLICY_VIOLATION`). Waiting on security review. **Revert after security review**: remove `google_org_policy_custom_constraint.filestore_enterprise_only` + `google_org_policy_policy.filestore_enterprise_only` from `1-org/policies.tf` (left on, it forces Enterprise ≈ $500+/month per instance in DEV) |
+| Filestore Enterprise-only constraint demo (DEV folder) | done | #16; tested 2026-09-30: `BASIC_HDD` create in `glitch-ops-dev` denied (`CUSTOM_ORG_POLICY_VIOLATION`). Kept enforced (ADR 046) |
 
 ## Handoff
 

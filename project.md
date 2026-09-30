@@ -117,3 +117,8 @@ Full design and ADRs 001–024 are in the private design doc (ClickUp, Landing Z
   lz-apply; both may impersonate lz-plan | Reason: least privilege + approval for the second
   operator without lock-out risk | Tradeoffs: rejected Cloud Identity (org isn't bound to a
   directory; a new org would be needed) and org-level `roles/viewer` (basic role, reads data).
+- ADR 046: Keep the Filestore Enterprise-only custom constraint enforced on the DEV folder | Reason:
+  built as a proof of concept (tier restriction via custom org policy, tested: BASIC_HDD denied);
+  no workload uses Filestore, so keeping it costs nothing and leaves a working custom-constraint
+  example | Tradeoffs: rejected reverting it (loses the example); a future Filestore workload in
+  DEV would need Enterprise or a project-level exception.
