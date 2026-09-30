@@ -175,6 +175,37 @@ resource "google_org_policy_policy" "run_ingress" {
   depends_on = [google_tags_tag_binding.public_ingress]
 }
 
+# Filestore Enterprise-tier-only constraint — requested by security to check whether Filestore
+# tier can be restricted via org policy. No managed constraint covers this, but the Instance
+# resource supports resource.tier as a custom constraint field. Custom constraints are always
+# defined at the org (required by the API); scoping enforcement to the DEV folder only, matching
+# how DEV/PROD/Shared are already used as the enforcement boundary elsewhere in this stage. Not
+# meant to stay enforced: Enterprise is the priciest tier (1 TiB minimum, well over the $10/month
+# budget), so leaving this on effectively bans Filestore folder-wide. Demo only — revert after
+# security reviews it.
+resource "google_org_policy_custom_constraint" "filestore_enterprise_only" {
+  name         = "custom.filestoreEnterpriseOnly"
+  parent       = local.org
+  display_name = "Restrict Filestore to Enterprise tier"
+  description  = "Only Filestore Enterprise-tier instances may be created."
+
+  action_type    = "ALLOW"
+  condition      = "resource.tier == 'ENTERPRISE'"
+  method_types   = ["CREATE"]
+  resource_types = ["file.googleapis.com/Instance"]
+}
+
+resource "google_org_policy_policy" "filestore_enterprise_only" {
+  name   = "${google_folder.top["dev"].name}/policies/${google_org_policy_custom_constraint.filestore_enterprise_only.name}"
+  parent = google_folder.top["dev"].name
+
+  spec {
+    rules {
+      enforce = "TRUE"
+    }
+  }
+}
+
 resource "google_org_policy_policy" "contact_domains" {
   name   = "${local.org}/policies/essentialcontacts.allowedContactDomains"
   parent = local.org
