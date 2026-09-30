@@ -14,3 +14,8 @@ output "projects" {
 output "wif_provider" {
   value = local.bootstrap.wif_provider
 }
+
+output "runtime_service_accounts" {
+  description = "Runtime service account emails per project/account."
+  value       = { for k, sa in google_service_account.runtime : k => sa.email }
+}

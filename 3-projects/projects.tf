@@ -2,21 +2,31 @@
 # Nothing here is secret (public repo, ADR 025): GitHub repo IDs are public.
 locals {
   apps = {
-    # GlitchOps: docs-as-code wiki on Cloud Run behind IAP (repo glitch-ops)
+    # GlitchOps: docs-as-code wiki — Firebase Hosting (custom domains) → Cloud Run login server
+    # with Firebase Auth (glitch-ops ADRs; content in a private repo)
     ops = {
       repo_id = "1387711334"
-      # IAP directly on Cloud Run needs ingress "all"; IAP still authenticates every request
+      # Firebase Hosting rewrites need ingress "all"; the login server authenticates every request
       public_ingress = true
       apis = [
         "artifactregistry.googleapis.com",
-        "iap.googleapis.com",
+        "firebase.googleapis.com",
+        "firebasehosting.googleapis.com",
+        "identitytoolkit.googleapis.com",
         "run.googleapis.com",
       ]
       roles = [
         "roles/artifactregistry.admin",
-        "roles/iap.admin",
+        "roles/firebase.viewer",
+        "roles/firebasehosting.admin",
+        "roles/identityplatform.admin",
         "roles/run.admin",
       ]
+      # Created here because the deployer can't grant IAM: the wiki server may only mint
+      # Firebase session cookies.
+      runtime_accounts = {
+        wiki-server = ["firebaseauth.users.createSession"]
+      }
     }
   }
 
