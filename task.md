@@ -19,7 +19,7 @@ Mirrors the ClickUp "GlitchLZ — implementation" task (Vladimir space).
 | Operators + PAM (ADR 045) | done | Kalina: read-only + PAM (dev self, prod/org approved by Vlad); entitlements visible to her. Vlad unchanged |
 | Onboarding docs for operators (CONTRIBUTING / repo CLAUDE.md) | done | #14; app template + setup script come with the wiki |
 | Filestore Enterprise-only constraint demo (DEV folder) | done | #16; tested 2026-09-30: `BASIC_HDD` create in `glitch-ops-dev` denied (`CUSTOM_ORG_POLICY_VIOLATION`). Kept enforced (ADR 046) |
-| AR CMEK-except-virtual custom constraint test (glitch-ops-dev) | in-progress | `custom.arCmekExceptVirtual` + project CMEK list without AR; tests: virtual no key allow, standard/remote no key deny, standard+key allow. Revert after |
+| AR CMEK-except-virtual custom constraint test (glitch-ops-dev) | done | #31, #32; tested 2026-11-05: `resource.mode == 'VIRTUAL_REPOSITORY' \|\| resource.kmsKeyName != ''` allows keyless virtual, denies keyless standard/remote (ERR-006: docs' `'VIRTUAL'` doesn't match). Reverted |
 
 ## Handoff
 
