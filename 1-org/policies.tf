@@ -208,7 +208,8 @@ resource "google_org_policy_policy" "filestore_enterprise_only" {
 # Google-managed-key virtual repos? gcp.restrictNonCmekServices can't tell repo modes apart, and
 # SCC SHA custom modules can't read resource.mode for AR, but org policy custom constraints can.
 # Scoped to glitch-ops-dev: the project drops AR from its CMEK list and enforces the custom
-# constraint instead. Mode values in constraint CEL are 'STANDARD' / 'REMOTE' / 'VIRTUAL'.
+# constraint instead. The docs' short mode names ('VIRTUAL') didn't match (ERR-006); trying the
+# API enum name ('VIRTUAL_REPOSITORY').
 resource "google_org_policy_custom_constraint" "ar_cmek_except_virtual" {
   name         = "custom.arCmekExceptVirtual"
   parent       = local.org
@@ -216,7 +217,7 @@ resource "google_org_policy_custom_constraint" "ar_cmek_except_virtual" {
   description  = "Standard and remote repositories must use a CMEK key; virtual repositories may use Google-managed keys."
 
   action_type    = "ALLOW"
-  condition      = "resource.mode == 'VIRTUAL' || resource.kmsKeyName != ''"
+  condition      = "resource.mode == 'VIRTUAL_REPOSITORY' || resource.kmsKeyName != ''"
   method_types   = ["CREATE"]
   resource_types = ["artifactregistry.googleapis.com/Repository"]
 }

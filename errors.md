@@ -44,3 +44,16 @@ CI strips results that carry `suppressions` before upload (`jq`); threads auto-r
 
 ### Resolution
 Ran `gcloud pam check-onboarding-status --organization=<org> --location=global --billing-project=glitch-iac` once (the call behind the console's "Set up PAM"); it provisioned the agent, and the re-run applied. For a fresh org: run it before the first 1-org apply.
+
+## ERR-006 — AR custom constraint: `resource.mode == 'VIRTUAL'` doesn't match virtual repos
+- **Date:** 2026-11-05 (PR #31, test in `glitch-ops-dev`)
+- **Tried:** `custom.arCmekExceptVirtual`, ALLOW on CREATE, condition
+  `resource.mode == 'VIRTUAL' || resource.kmsKeyName != ''` (the `'VIRTUAL'` spelling is from the
+  Artifact Registry custom-constraint docs).
+- **Result:** keyless virtual repo create denied: `Operation denied by org policy ... customConstraints/custom.arCmekExceptVirtual`.
+  Keyless standard/remote denied (expected), standard with key allowed (expected), so the
+  `kmsKeyName` half works and the mode comparison is what fails.
+- **Also seen:** right after the apply, the old `gcp.restrictNonCmekServices` deny still applied
+  for ~1 min, although the effective policy already showed AR removed. Propagation delay, not a bug.
+
+unresolved
