@@ -204,53 +204,6 @@ resource "google_org_policy_policy" "filestore_enterprise_only" {
   }
 }
 
-# TEST (temporary, revert after): can AR require CMEK on standard/remote repos while allowing
-# Google-managed-key virtual repos? gcp.restrictNonCmekServices can't tell repo modes apart, and
-# SCC SHA custom modules can't read resource.mode for AR, but org policy custom constraints can.
-# Scoped to glitch-ops-dev: the project drops AR from its CMEK list and enforces the custom
-# constraint instead. The docs' short mode names ('VIRTUAL') didn't match (ERR-006); trying the
-# API enum name ('VIRTUAL_REPOSITORY').
-resource "google_org_policy_custom_constraint" "ar_cmek_except_virtual" {
-  name         = "custom.arCmekExceptVirtual"
-  parent       = local.org
-  display_name = "Artifact Registry repos need CMEK (virtual exempt)"
-  description  = "Standard and remote repositories must use a CMEK key; virtual repositories may use Google-managed keys."
-
-  action_type    = "ALLOW"
-  condition      = "resource.mode == 'VIRTUAL_REPOSITORY' || resource.kmsKeyName != ''"
-  method_types   = ["CREATE"]
-  resource_types = ["artifactregistry.googleapis.com/Repository"]
-}
-
-resource "google_org_policy_policy" "ar_cmek_except_virtual_ops_dev" {
-  name   = "projects/glitch-ops-dev/policies/${google_org_policy_custom_constraint.ar_cmek_except_virtual.name}"
-  parent = "projects/glitch-ops-dev"
-
-  spec {
-    rules {
-      enforce = "TRUE"
-    }
-  }
-}
-
-# Replaces (not merges with) the org CMEK list for glitch-ops-dev, minus Artifact Registry.
-resource "google_org_policy_policy" "cmek_services_ops_dev" {
-  name   = "projects/glitch-ops-dev/policies/gcp.restrictNonCmekServices"
-  parent = "projects/glitch-ops-dev"
-
-  spec {
-    inherit_from_parent = false
-    rules {
-      values {
-        denied_values = [for service in local.cmek_services : service if service != "artifactregistry.googleapis.com"]
-      }
-    }
-  }
-
-  # Enforce the replacement constraint before AR leaves the CMEK list.
-  depends_on = [google_org_policy_policy.ar_cmek_except_virtual_ops_dev]
-}
-
 resource "google_org_policy_policy" "contact_domains" {
   name   = "${local.org}/policies/essentialcontacts.allowedContactDomains"
   parent = local.org

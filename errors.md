@@ -56,4 +56,8 @@ Ran `gcloud pam check-onboarding-status --organization=<org> --location=global -
 - **Also seen:** right after the apply, the old `gcp.restrictNonCmekServices` deny still applied
   for ~1 min, although the effective policy already showed AR removed. Propagation delay, not a bug.
 
-unresolved
+### Resolution
+Use the API enum name: `resource.mode == 'VIRTUAL_REPOSITORY' || resource.kmsKeyName != ''` (PR #32).
+Tested 2026-11-05: keyless virtual allowed (Google-managed key), keyless standard/remote denied,
+standard/remote with key allowed. The new condition took ~2 min after apply to take effect. The
+docs' short names (`'VIRTUAL'`, `'STANDARD'`, `'REMOTE'`) don't match. Test reverted afterwards.
